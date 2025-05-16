@@ -1,0 +1,7 @@
+sagemaker
+boto3>=1.38.8
+tqdm==4.67.1
+urllib3==2.4.0
+pathlib==1.0.1
+pillow>=11.2.1 
+matplotlib>=3.10.3
