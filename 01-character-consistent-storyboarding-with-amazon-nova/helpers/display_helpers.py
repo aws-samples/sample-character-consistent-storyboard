@@ -285,3 +285,6 @@ def display_storyboard(image_data, story):
     for scene in story.get("scenes"):
         scene_id = scene["scene_id"]
         display_images_in_row(image_data[scene_id], caption=story["scenes"][scene_id]["description"])
+
+def display_hyperlink(text, address):
+    display(HTML(f'<a href="{address}">{text}</a>'))
