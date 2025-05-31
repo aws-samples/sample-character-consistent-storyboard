@@ -1,7 +1,6 @@
 import json
 import random
 from botocore.exceptions import ClientError
-import os
 import time
 
 
@@ -9,7 +8,7 @@ MAX_RETRIES = 50
 INITIAL_BACKOFF = 5
 
 
-def generate_text(bedrock_client, user_prompt, system_prompt):
+def generate_text(bedrock_client, model_id, user_prompt, system_prompt):
     retries = 0
     backoff = INITIAL_BACKOFF
 
@@ -19,7 +18,7 @@ def generate_text(bedrock_client, user_prompt, system_prompt):
     ]
 
     input_data = {
-        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0",
+        "modelId": model_id,
         "contentType": "application/json",
         "accept": "application/json",
         "body": json.dumps(
@@ -62,7 +61,7 @@ def get_task_status(bedrock_client, invocation_arn):
     return response["status"]
 
 
-def generate_images(bedrock_client, user_prompt, negative_prompt, resolution=[1280,720], seed=None, image_count=3):
+def generate_images(bedrock_client, model_id, user_prompt, negative_prompt, resolution=[1280,720], seed=None, image_count=3):
     retries = 0
     backoff = INITIAL_BACKOFF
     
@@ -87,7 +86,7 @@ def generate_images(bedrock_client, user_prompt, negative_prompt, resolution=[12
             }
         
             response = bedrock_client.invoke_model(
-                modelId="amazon.nova-canvas-v1:0", body=json.dumps(payload)
+                modelId=model_id, body=json.dumps(payload)
             )
         
             model_response = json.loads(response["body"].read())
@@ -100,6 +99,63 @@ def generate_images(bedrock_client, user_prompt, negative_prompt, resolution=[12
             backoff += 1
     
     raise Exception("Max retries reached. Unable to invoke model.")
+
+def generate_videos(bedrock_client, model_id, user_prompt, image_bytes, output_bucket, seed=None):
+    retries = 0
+    backoff = INITIAL_BACKOFF
+    
+    if seed is None:
+        seed = get_random_seed()
+        
+    model_input = {
+        "taskType": "TEXT_VIDEO",
+        "textToVideoParams": {
+            "text": user_prompt,
+            "images": [{ "format": "png", "source": { "bytes": image_bytes} }]
+        },
+        "videoGenerationConfig": {
+            "durationSeconds": 6,
+            "fps": 24,
+            "dimension": "1280x720",
+            "seed": seed
+        }
+    }
+
+    # Start async invocation with retries
+    while retries < MAX_RETRIES:
+        try:
+            invocation = bedrock_client.start_async_invoke(
+                modelId=model_id,
+                modelInput=model_input,
+                outputDataConfig={"s3OutputDataConfig": {"s3Uri": f"s3://{output_bucket}"}}
+            )
+            
+            invocation_arn = invocation["invocationArn"]
+            s3_prefix = invocation_arn.split('/')[-1]
+            s3_location = f"s3://{output_bucket}/{s3_prefix}"
+            print(f"\nS3 URI: {s3_location}")
+            
+            # Poll for completion
+            while True:
+                status = get_task_status(bedrock_client, invocation_arn)
+                print(f"Status: {status}")
+                
+                if status == "Completed":
+                    return s3_location
+                elif status in ["Failed"]:
+                    print(f"Task failed with status: {status}")
+                    raise Exception(f"Video generation failed with status: {status}")
+                    
+                time.sleep(10)
+                
+        except ClientError as e:
+            error_code = e.response['Error']['Code']
+            print(f"Error: {error_code}. Retrying in {backoff} seconds...")
+            time.sleep(backoff)
+            retries += 1
+            backoff += 1
+    
+    raise Exception("Max retries reached. Unable to generate video.")
 
 
 def invoke_model_with_retry(modelId, body):

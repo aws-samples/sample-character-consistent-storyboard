@@ -1,6 +1,5 @@
 
-from IPython.display import HTML, display
-import json
+from IPython.display import HTML, display, Video, Markdown
 
 def display_story_table(story_data):
     """
@@ -288,3 +287,9 @@ def display_storyboard(image_data, story):
 
 def display_hyperlink(text, address):
     display(HTML(f'<a href="{address}">{text}</a>'))
+
+def display_video(video_path):
+    display(Video(video_path, width=800, embed=True))
+
+def display_text(text):
+    display(Markdown(text))
