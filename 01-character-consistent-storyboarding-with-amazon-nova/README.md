@@ -12,13 +12,15 @@ In this first part, we dive into prompt engineering and character development pi
 
 ## Contents
 
-- `storybook_demo.ipynb`: Original notebook for character-consistent storyboarding
-- `storybook_demo_with_instructions.ipynb`: Enhanced notebook with detailed instructions and explanations
+- `01-character-design.ipynb`: Notebook for creating consistent character designs
+- `02-storyboard-generation.ipynb`: Notebook for generating complete storyboards with consistent characters
 - `helpers/`: Directory containing utility functions and helper scripts:
   - `bedrock_helpers.py`: Functions for interacting with Amazon Bedrock
   - `display_helpers.py`: Functions for visualizing storyboards and results
   - `prompt_helpers.py`: Templates and functions for creating effective prompts
-- `requirements.txt`: Python dependencies required for the project (boto3)
+  - `image_utils.py`: Utilities for image processing and display
+- `output/`: Directory for storing generated images and videos
+- `requirements.txt`: Python dependencies required for the project
 
 ## Prerequisites
 
@@ -35,39 +37,68 @@ In this first part, we dive into prompt engineering and character development pi
 
 2. Configure your AWS credentials with appropriate permissions for Amazon Bedrock.
 
-## Usage
+## Workshop Structure
 
-1. Open and run either notebook:
-   ```
-   jupyter notebook storybook_demo_with_instructions.ipynb
-   ```
-   or
-   ```
-   jupyter notebook storybook_demo.ipynb
-   ```
+### Part 1: Character Design (01-character-design.ipynb)
 
-2. Follow the step-by-step instructions in the notebook to:
-   - Define your story parameters (genre, idea, scene count)
-   - Generate a structured story with consistent characters
-   - Create detailed image prompts for each scene
-   - Generate consistent storyboard frames using Amazon Nova Canvas
-   - Visualize your complete storyboard
+This notebook focuses on creating consistent character designs using Amazon Nova Canvas:
 
-## Key Techniques Covered
+1. **Text-to-Image Generation**: Learn how to use text prompts to generate character images
+2. **Visual Style Control**: Apply different visual styles to character designs
+3. **Character Variations**: Use seed values to create consistent character variations
+4. **Parameter Tuning**: Explore how the `cfgScale` parameter affects image generation
+5. **Scene Consistency**: Place the character in different scenes while maintaining visual consistency
 
-- **Character Definition**: Methods to establish clear character attributes and visual identities
-- **Prompt Engineering**: Strategies for crafting prompts that maintain consistency
-- **Style Consistency**: Approaches to maintain artistic style across multiple frames
-- **Scene Transitions**: Techniques for creating coherent visual narratives
+![Character Consistent](statics/character-consistent.png)
 
-## Prompt Engineering for Character Consistency
+### Part 2: Storyboard Generation (02-storyboard-generation.ipynb)
 
-The notebook demonstrates several key techniques for maintaining character consistency:
+This notebook demonstrates a complete storyboarding workflow:
 
-1. **Detailed Character Descriptions**: Creating comprehensive descriptions that are reused across scenes
-2. **Style Presets**: Using consistent style parameters for all generated images
-3. **Seed Control**: Using the same random seed for all image generations
-4. **Negative Prompts**: Specifying elements to avoid in the generated images
+1. **Story Generation**: Use Claude 3 Sonnet to create structured story scenes from a simple concept
+2. **Image Prompt Generation**: Create optimized prompts for each storyboard panel
+3. **Storyboard Panel Generation**: Generate consistent panels using Nova Canvas
+4. **Video Generation**: Bring storyboard panels to life with Nova Reel
+
+## Storyboard Generation Pipeline
+
+The following diagram illustrates the core functional steps in the storyboard generation process:
+
+```mermaid
+graph TD
+    classDef blueStyle fill:#a3d0f5,stroke:#333,stroke-width:2px,color:#333,font-weight:bold
+    
+    A[Develop Story<br>with Claude] --> B[Develop Character<br>Descriptions]
+    B --> C[Generate Storyboard<br>Images with Nova Canvas]
+    C --> D[Generate Video<br>with Nova Reel]
+    
+    class A,B,C,D blueStyle
+```
+
+## IAM Permissions Requirements
+
+To run these notebooks successfully, your IAM role needs the following permissions:
+- `bedrock:InvokeModel` - For calling the Bedrock models
+- `bedrock:GetAsyncInvoke` - For handling asynchronous model invocations
+
+You can use the following policy to grant these permissions:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "bedrock:InvokeModel",
+                "bedrock:GetAsyncInvoke"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
 
 ## Next Steps
 
