@@ -7,8 +7,45 @@ import time
 MAX_RETRIES = 50
 INITIAL_BACKOFF = 5
 
+def call_nova_lite(bedrock_client, user_prompt, system_prompt=None):
+
+    retries = 0
+    backoff = INITIAL_BACKOFF
+
+    body_json = {
+        "inferenceConfig": {
+            "max_new_tokens": 2000
+        },
+        "messages": [{"role": "user", "content": [{"text": user_prompt}]}],
+    }
+
+    if system_prompt:
+        body_json["system"] = [{"text": system_prompt}]
+
+    input_data = {
+        "modelId": "amazon.nova-lite-v1:0",
+        "contentType": "application/json",
+        "accept": "application/json",
+        "body": json.dumps(body_json)
+    }
+
+    while retries < MAX_RETRIES:
+        try:
+            response = bedrock_client.invoke_model(**input_data)
+            response_body = json.loads(response["body"].read().decode())
+            return response_body["output"]["message"]["content"][0]["text"]
+        except ClientError as e:
+            error_code = e.response['Error']['Code']
+            print(f"Error: {error_code}. Retrying in {backoff} seconds...")
+            time.sleep(backoff)
+            retries += 1
+            backoff += 1
+    
+    raise Exception("Max retries reached. Unable to invoke model.")
+
 
 def generate_text(bedrock_client, model_id, user_prompt, system_prompt):
+    
     retries = 0
     backoff = INITIAL_BACKOFF
 
@@ -149,6 +186,7 @@ def generate_videos(bedrock_client, model_id, user_prompt, image_bytes, output_b
                 time.sleep(10)
                 
         except ClientError as e:
+            print(e)
             error_code = e.response['Error']['Code']
             print(f"Error: {error_code}. Retrying in {backoff} seconds...")
             time.sleep(backoff)

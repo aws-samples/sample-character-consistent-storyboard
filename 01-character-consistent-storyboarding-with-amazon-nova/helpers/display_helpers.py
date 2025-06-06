@@ -1,5 +1,7 @@
-
 from IPython.display import HTML, display, Video, Markdown
+import base64
+import io
+from PIL import Image
 
 def display_story_table(story_data):
     """
@@ -220,14 +222,33 @@ def display_prompt_table(story_data, image_prompts):
     # Display the HTML
     display(HTML(html_content))
 
+def pil_image_to_base64(pil_image):
+    """
+    Convert a PIL Image object to a base64-encoded string.
+    
+    Parameters:
+    -----------
+    pil_image : PIL.Image
+        The PIL Image object to convert
+        
+    Returns:
+    --------
+    str
+        Base64-encoded string representation of the image
+    """
+    buffer = io.BytesIO()
+    pil_image.save(buffer, format="PNG")
+    img_str = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    return img_str
+
 def display_images_in_row(image_data, caption=None, width=300):
     """
     Display a list of images in a single row with an optional description column.
     
     Parameters:
     -----------
-    image_bytes_list : list
-        List of image byte arrays (already decoded from base64)
+    image_data : list
+        List of image data, which can be either base64-encoded strings or PIL Image objects
     caption : str, optional
         Long description to display in the last column
     width : int, optional
@@ -255,13 +276,15 @@ def display_images_in_row(image_data, caption=None, width=300):
     """
     
     # Add each image cell
-    for b64_str in image_data:
-        # b64_str = base64.b64encode(img_bytes).decode('utf-8')
+    for img in image_data:
+        # Check if the image is a PIL Image object and convert it to base64 if needed
+        if hasattr(img, 'mode') and hasattr(img, 'size') and hasattr(img, 'tobytes'):
+            # This is likely a PIL Image object
+            b64_str = pil_image_to_base64(img)
+        else:
+            # Assume it's already a base64-encoded string
+            b64_str = img
         
-        # # Detect image type (assuming JPEG or PNG)
-        # if img_bytes.startswith(b'\xff\xd8'):
-        #     mime = 'image/jpeg'
-        # else:
         mime = 'image/png'  # Default to PNG
         
         # Create HTML img tag
@@ -281,9 +304,19 @@ def display_images_in_row(image_data, caption=None, width=300):
     display(HTML(html))
 
 def display_storyboard(image_data, story):
-    for scene in story.get("scenes"):
-        scene_id = scene["scene_id"]
-        display_images_in_row(image_data[scene_id], caption=story["scenes"][scene_id]["description"])
+    """
+    Display a storyboard with images for each scene.
+    
+    Parameters:
+    -----------
+    image_data : dict
+        Dictionary where keys are scene IDs and values are lists of images
+        (either base64-encoded strings or PIL Image objects)
+    story : dict
+        Dictionary containing story data with scenes
+    """
+    for i, scene in enumerate(story):
+        display_images_in_row(image_data[i], caption=story[i]["description"])
 
 def display_hyperlink(text, address):
     display(HTML(f'<a href="{address}">{text}</a>'))
