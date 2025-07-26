@@ -65,12 +65,12 @@ This notebook demonstrates a complete storyboarding workflow:
 The following diagram illustrates the core functional steps in the storyboard generation process:
 
 ```mermaid
-graph TD
+graph LR
     classDef blueStyle fill:#a3d0f5,stroke:#333,stroke-width:2px,color:#333,font-weight:bold
     
-    A[Develop Story<br>with Claude] --> B[Develop Character<br>Descriptions]
-    B --> C[Generate Storyboard<br>Images with Nova Canvas]
-    C --> D[Generate Video<br>with Nova Reel]
+    A[Develop the image prompt<br>with Nova Lite] --> B[Generate Storyboard<br>Images with Nova Canvas]
+    B --> D[Generate Video<br>with Nova Reel]
+    C[Develop the video prompt<br>with Nova Lite] --> D
     
     class A,B,C,D blueStyle
 ```
