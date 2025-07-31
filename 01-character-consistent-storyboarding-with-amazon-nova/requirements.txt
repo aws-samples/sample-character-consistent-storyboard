@@ -2,3 +2,4 @@ boto3>=1.38.18
 sagemaker>=2.244.1
 pillow>=11.2.1
 matplotlib>=3.10.3
+json-repair>=0.48.0
