@@ -14,13 +14,16 @@ def call_nova_lite(bedrock_client, user_prompt, system_prompt=None):
 
     body_json = {
         "inferenceConfig": {
-            "max_new_tokens": 2000
+            "max_new_tokens": 2000,
+            "temperature": 0.1,
+            "topP": 0.6
         },
         "messages": [{"role": "user", "content": [{"text": user_prompt}]}],
     }
 
     if system_prompt:
         body_json["system"] = [{"text": system_prompt}]
+
 
     input_data = {
         "modelId": "amazon.nova-lite-v1:0",

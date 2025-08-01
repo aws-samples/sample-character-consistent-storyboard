@@ -12,8 +12,7 @@ In this first part, we dive into prompt engineering and character development pi
 
 ## Contents
 
-- `01-character-design.ipynb`: Notebook for creating consistent character designs
-- `02-storyboard-generation.ipynb`: Notebook for generating complete storyboards with consistent characters
+- `01-character-design.ipynb`: Notebook for creating consistent character designs and generating complete storyboards with consistent characters
 - `helpers/`: Directory containing utility functions and helper scripts:
   - `bedrock_helpers.py`: Functions for interacting with Amazon Bedrock
   - `display_helpers.py`: Functions for visualizing storyboards and results
@@ -39,9 +38,9 @@ In this first part, we dive into prompt engineering and character development pi
 
 ## Workshop Structure
 
-### Part 1: Character Design (01-character-design.ipynb)
+### Character Design and Storyboard Generation (01-character-design.ipynb)
 
-This notebook focuses on creating consistent character designs using Amazon Nova Canvas:
+This notebook focuses on creating consistent character designs using Amazon Nova Canvas and demonstrates a complete storyboarding workflow:
 
 1. **Text-to-Image Generation**: Learn how to use text prompts to generate character images
 2. **Visual Style Control**: Apply different visual styles to character designs
@@ -51,9 +50,9 @@ This notebook focuses on creating consistent character designs using Amazon Nova
 
 ![Character Consistent](statics/character-consistent.png)
 
-### Part 2: Storyboard Generation (02-storyboard-generation.ipynb)
+### Part 2: Storyboard Generation
 
-This notebook demonstrates a complete storyboarding workflow:
+The notebook also demonstrates a complete storyboarding workflow:
 
 1. **Story Generation**: Use Claude 3 Sonnet to create structured story scenes from a simple concept
 2. **Image Prompt Generation**: Create optimized prompts for each storyboard panel
