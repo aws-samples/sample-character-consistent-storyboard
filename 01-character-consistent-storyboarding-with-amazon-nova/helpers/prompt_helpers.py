@@ -48,7 +48,7 @@ system_prompts = {
                     }
                 ],
                 "description": "Rosa says goodbye to her mother, Maya. Maya offers her words of encouragement.",
-                "imagery": "A wide shot of Rosa's determined face, facing Maya and recieving a small wrapped gift."
+                "imagery": "A wide shot of Rosa's determined face, facing Maya and receiving a small wrapped gift."
                 },
                 ...
             ]
